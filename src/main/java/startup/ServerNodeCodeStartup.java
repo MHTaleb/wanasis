@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.ignite.Ignite;
+import org.apache.ignite.IgniteCluster;
 import org.apache.ignite.Ignition;
 import org.apache.ignite.cache.query.FieldsQueryCursor;
 import org.apache.ignite.cache.query.SqlFieldsQuery;
@@ -20,6 +21,13 @@ public class ServerNodeCodeStartup {
      **/
     public static void main(String[] args) throws Exception {
         Ignite ignite = Ignition.start(ServerConfigurationFactory.createConfiguration());
+        IgniteCluster igniteCluster = ignite.cluster();
+        while (!igniteCluster.active()) {
+			System.out.println("waiting for cluster startup please go to control.sh in ignite grid gain server and launch \n"
+					+ "bin/control.sh --activate");
+        	Thread.sleep(1000);
+			
+		}
         
         System.out.println(">>> Loading caches...");
 
