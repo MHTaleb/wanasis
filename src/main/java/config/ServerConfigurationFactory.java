@@ -1,5 +1,6 @@
 package config;
 
+import java.io.File;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -24,6 +25,7 @@ import org.apache.ignite.cache.store.jdbc.JdbcType;
 import org.apache.ignite.cache.store.jdbc.JdbcTypeField;
 import org.apache.ignite.cache.store.jdbc.dialect.OracleDialect;
 import org.apache.ignite.configuration.CacheConfiguration;
+import org.apache.ignite.configuration.DataPageEvictionMode;
 import org.apache.ignite.configuration.DataRegionConfiguration;
 import org.apache.ignite.configuration.DataStorageConfiguration;
 import org.apache.ignite.configuration.IgniteConfiguration;
@@ -88,13 +90,27 @@ public class ServerConfigurationFactory {
 
 		DataRegionConfiguration dataRegionCfg = new DataRegionConfiguration();
 
-		dataRegionCfg.setInitialSize(1073741824L);
-		dataRegionCfg.setMaxSize(6442450944L);
-		
+		dataRegionCfg.setInitialSize(4L * 1024 * 1024 * 1024); // 4Go
+		dataRegionCfg.setMaxSize(7L * 1024 * 1024 * 1024); // 7G0
+
 		// --- edit made for bug 1529242019
 		dataRegionCfg.setPersistenceEnabled(true);
 
 		dataStorageCfg.setDefaultDataRegionConfiguration(dataRegionCfg);
+
+		dataStorageCfg.getDefaultDataRegionConfiguration().setCheckpointPageBufferSize(7L * 1024 * 1024 * 256);
+
+		dataStorageCfg.setPageSize(4096);
+
+		dataStorageCfg.setWriteThrottlingEnabled(true);
+
+		dataStorageCfg.setStoragePath("/opt/work");
+
+		dataStorageCfg.setWalArchivePath("/home/wal/archive");
+
+		dataStorageCfg.setWalPath("/home/wal/archive");
+
+		dataStorageCfg.setWalSegmentSize(128 * 1024 * 1024);
 
 		cfg.setDataStorageConfiguration(dataStorageCfg);
 
@@ -139,7 +155,7 @@ public class ServerConfigurationFactory {
 
 		ccfg.setReadThrough(true);
 		ccfg.setWriteThrough(true);
-		ccfg.setEagerTtl(true);
+		// ccfg.setEagerTtl(true);
 
 		ArrayList<QueryEntity> qryEntities = new ArrayList<>();
 
